@@ -51,9 +51,7 @@ I’ll walk you through steps on how I set up a home lab for Elastic Stack Secur
 <img src="https://github.com/user-attachments/assets/d0c172e4-adef-443c-b8d6-f2235a579d22" width="430" height="480">
 <img src="https://github.com/user-attachments/assets/42caa53d-b42f-4b94-b980-8490393f97ad" width="650" height="380">
 
-#
-
-**Agent enrollment for windows in PowerShell**
+# Setting up the Agent to Collect Logs in PowerShell
 ```pre
 $ProgressPreference = 'SilentlyContinue'
 Invoke-WebRequest -Uri https://artifacts.elastic.co/downloads/beats/elastic-agent/elastic-agent-8.15.1-windows-x86_64.zip -OutFile elastic-agent-8.15.1-windows-x86_64.zip
@@ -72,10 +70,94 @@ cd elastic-agent-8.15.1-windows-x86_64
 <br>
 <br>
 
-Installed Elastic Agent into Linux-
+# Installed Elastic Agent into Linux-
 ```pre
 curl -L -O https://artifacts.elastic.co/downloads/beats/elastic-agent/elastic-agent-8.15.1-linux-x86_64.tar.gz
 tar xzvf elastic-agent-8.15.1-linux-x86_64.tar.gz
 cd elastic-agent-8.15.1-linux-x86_64
 sudo ./elastic-agent install --url=https://32150d0f66754d5283d8b62e407ab046.fleet.us-west-2.aws.found.io:443 --enrollment-token=NE41aERaSUJkZDhIaGtzeEZOOHk6MmhTbndQQS1TcEN1WWNmYlY0a00zQQ==
 ```
+<br>
+<img src="https://github.com/user-attachments/assets/3c15be1e-e86e-4223-9a3f-28252a373586" width="880" height="680">
+
+<br>
+<img src="https://github.com/user-attachments/assets/ac2cc612-931f-4c05-bcab-17a8f8f681fb" width="650" height="110">
+<br>
+<br>
+Verifying the agent with command: sudo systemctl status elastic-agent.service
+<br>
+<br>  
+
+**Result:**
+<br>
+<img src="https://github.com/user-attachments/assets/9bdcb68b-8e76-4b0c-bc2a-56f20d35750c" width="780" height="580">
+
+# Generating Security Events on the Kali VM: Running Nmap scan
+To verify that the agent is working correctly, we will generate some security-related events on the VM using a tool called "Nmap" (Network Mapper): free and open-source utility used for network exploration, management, and security auditing
+<br>
+<img src="https://github.com/user-attachments/assets/d3c16c86-f3ca-47c2-8e19-c5caaac2b58a" width="574" height="207">
+<br>
+<img src="https://github.com/user-attachments/assets/a2e711a7-7d4c-454d-a2e1-5fd219561150" width="574" height="207">
+<br>
+
+# Querying for Security Events in the Elastic SIEM
+Forwarded data from the Kali VM to the SIEM, we can start querying and analyzing the logs in the SIEM.
+<br>
+<img src="https://github.com/user-attachments/assets/7e67f233-5025-4bfa-a45f-187128e14af4" width="480" height="350">
+<br>
+
+Found our nmap event
+<img src="https://github.com/user-attachments/assets/95cf888b-6280-4df7-ba22-e697ce44ab16" width="396" height="56">
+
+<br>
+Checking out the details to confirm it was the nmap event
+<img src="https://github.com/user-attachments/assets/4b23ccb1-0d69-4d03-ade1-105a4bfe946c" width="434" height="800">
+
+
+# Creating a Dashboard to Visualize the Events
+<br>
+<img src="https://github.com/user-attachments/assets/5de88453-4eee-42c5-8fc5-504cb1ff331b" width="580" height="350">
+<br>
+<br>
+<img src="https://github.com/user-attachments/assets/f9cd81dc-704d-46c0-962e-19d68e34b1de" width="580" height="350">
+<br>
+
+# Creating SIEM Alerts
+<img src="https://github.com/user-attachments/assets/9d119331-dcd3-4280-b5db-7d84c87cab20" width="580" height="250">
+<br>
+No alerts created yet, time to make one.
+<br>
+<img src="https://github.com/user-attachments/assets/32a5764b-1e78-4b69-a7a4-a32c4a111487" width="580" height="350">
+<img src="https://github.com/user-attachments/assets/df40ecb4-97d9-4ef7-a8fa-6aefc03429e1" width="580" height="250">
+
+Making a rule to trigger the alert
+
+**Rule**
+```
+custom query- event.action:"nmap_scan”
+```
+<br>
+<img src="https://github.com/user-attachments/assets/b12d68cd-bf8e-492d-9c06-164f2edb94bb" width="480" height="350">
+<img src="https://github.com/user-attachments/assets/68db0fb0-ea8c-4216-a1cb-d78fe2b7b89e" width="480" height="350">
+<br>
+
+
+<br>
+<img src="https://github.com/user-attachments/assets/68db0fb0-ea8c-4216-a1cb-d78fe2b7b89e" width="480" height="350">
+
+<br>
+Configure rule actions to alert to be sent to an email when nmap scan occurs
+
+<br>
+<img src="https://github.com/user-attachments/assets/1e8a4a1e-4a26-4c09-8663-f525d993f203" width="580" height="250">
+<br>
+
+<br>
+<img src="https://github.com/user-attachments/assets/90eb38e4-3dab-4322-99e3-53b0dce70981" width="750" height="250">
+<br>
+We can see that an alert was made by the nmap event! 
+
+# Conclusion
+This project wraps up a complete home lab setup using Elastic SIEM and a Kali Linux VM, highlighting a practical approach to security monitoring. We configured data forwarding from the Kali VM to the SIEM with the Elastic Beats agent, generated security events using Nmap, and explored log analysis through the Elastic web interface. Additionally, we built a custom dashboard for visualizing security events and set up alerts to detect them in real-time.
+
+By creating this lab, I gained hands-on experience with core aspects of security monitoring and incident response. This setup offers a practical foundation for building skills as a security analyst or engineer, reinforcing essential knowledge in using SIEM tools for real-world cybersecurity challenges.
